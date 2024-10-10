@@ -17,6 +17,9 @@ public class UserServiceImpl implements UserService {
         if (userRepository.existsByEmail(user.getEmail())) {
             throw new RuntimeException("该电子邮件地址已被注册");
         }
+        if (userRepository.existsByUsername(user.getUsername())) {
+            throw new RuntimeException("该用户名已被注册");
+        }
         return userRepository.save(user);
     }
 

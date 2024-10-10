@@ -4,7 +4,7 @@ import org.example.backpxy.model.Device;
 import java.util.List;
 
 public interface DeviceService {
-    Device addDevice(Device device);
+    Device addDevice(Device device) throws IllegalArgumentException;
     Device updateDevice(Device device);
     void deleteDevice(Long id);
     Device findById(Long id);

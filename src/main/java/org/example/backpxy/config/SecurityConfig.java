@@ -15,10 +15,10 @@ public class SecurityConfig {
         http
             .csrf().disable()
             .authorizeRequests()
-                .antMatchers("/api/users/register").permitAll()
-                .anyRequest().authenticated()
+                .anyRequest().permitAll()
             .and()
-            .httpBasic();
+            .httpBasic().disable()
+            .formLogin().disable();
         return http.build();
     }
 }

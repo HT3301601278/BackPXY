@@ -15,7 +15,13 @@ public class DeviceServiceImpl implements DeviceService {
     private DeviceRepository deviceRepository;
 
     @Override
-    public Device addDevice(Device device) {
+    public Device addDevice(Device device) throws IllegalArgumentException {
+        if (device.getName() == null || device.getName().trim().isEmpty()) {
+            throw new IllegalArgumentException("设备名称不能为空");
+        }
+        if (device.getType() == null || device.getType().trim().isEmpty()) {
+            throw new IllegalArgumentException("设备类型不能为空");
+        }
         return deviceRepository.save(device);
     }
 

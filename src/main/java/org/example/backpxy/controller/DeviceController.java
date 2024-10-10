@@ -16,8 +16,18 @@ public class DeviceController {
     private DeviceService deviceService;
 
     @PostMapping
-    public ResponseEntity<Device> addDevice(@RequestBody Device device) {
-        return ResponseEntity.ok(deviceService.addDevice(device));
+    public ResponseEntity<?> addDevice(@RequestBody Device device) {
+        try {
+            if (device.getName() == null || device.getName().trim().isEmpty()) {
+                return ResponseEntity.badRequest().body("设备名称不能为空");
+            }
+            if (device.getType() == null || device.getType().trim().isEmpty()) {
+                return ResponseEntity.badRequest().body("设备类型不能为空");
+            }
+            return ResponseEntity.ok(deviceService.addDevice(device));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("添加设备失败：" + e.getMessage());
+        }
     }
 
     @PutMapping("/{id}")
