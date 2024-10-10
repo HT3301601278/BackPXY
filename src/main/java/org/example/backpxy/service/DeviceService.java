@@ -1,6 +1,7 @@
 package org.example.backpxy.service;
 
 import org.example.backpxy.model.Device;
+
 import java.util.List;
 
 public interface DeviceService {

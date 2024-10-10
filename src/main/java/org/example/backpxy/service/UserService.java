@@ -8,4 +8,5 @@ public interface UserService {
     User findByEmail(String email);
     User updateUser(User user);
     void changePassword(Long userId, String oldPassword, String newPassword);
+    User login(String username, String password);
 }

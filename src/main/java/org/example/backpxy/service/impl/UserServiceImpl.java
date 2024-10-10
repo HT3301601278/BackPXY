@@ -59,4 +59,16 @@ public class UserServiceImpl implements UserService {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("用户不存在"));
     }
+
+    @Override
+    public User login(String username, String password) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("用户名不存在"));
+        
+        if (!password.equals(user.getPassword())) {
+            throw new RuntimeException("密码不正确");
+        }
+        
+        return user;
+    }
 }

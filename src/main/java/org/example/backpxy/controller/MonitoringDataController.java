@@ -1,5 +1,6 @@
 package org.example.backpxy.controller;
 
+import org.example.backpxy.dto.MonitoringDataDTO;
 import org.example.backpxy.model.MonitoringData;
 import org.example.backpxy.service.MonitoringDataService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,16 +19,21 @@ public class MonitoringDataController {
     private MonitoringDataService monitoringDataService;
 
     @PostMapping
-    public ResponseEntity<MonitoringData> saveData(@RequestBody MonitoringData data) {
-        return ResponseEntity.ok(monitoringDataService.saveData(data));
+    public ResponseEntity<MonitoringData> saveData(@RequestBody MonitoringDataDTO dataDTO) {
+        return ResponseEntity.ok(monitoringDataService.saveData(dataDTO));
     }
 
     @GetMapping("/device/{deviceId}")
     public ResponseEntity<List<MonitoringData>> getDataByDeviceAndTimeRange(
             @PathVariable Long deviceId,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Date startTime,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Date endTime) {
-        return ResponseEntity.ok(monitoringDataService.findByDeviceIdAndTimeRange(deviceId, startTime, endTime));
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'") Date startTime,
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'") Date endTime) {
+        try {
+            List<MonitoringData> data = monitoringDataService.findByDeviceIdAndTimeRange(deviceId, startTime, endTime);
+            return ResponseEntity.ok(data);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(null);
+        }
     }
 
     @GetMapping("/device/{deviceId}/latest")
