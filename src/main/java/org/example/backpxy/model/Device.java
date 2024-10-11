@@ -19,6 +19,7 @@ public class Device {
     @Column(nullable = false)
     private String status;
 
+    @Column(name = "sampling_frequency")
     private Double samplingFrequency;
 
     @Temporal(TemporalType.TIMESTAMP)
@@ -56,5 +57,17 @@ public class Device {
 
     public Long getId() {
         return id;
+    }
+
+    public Double getSamplingFrequency() {
+        return samplingFrequency;
+    }
+
+    public void setSamplingFrequency(Double samplingFrequency) {
+        this.samplingFrequency = samplingFrequency;
+    }
+
+    public String getStatus() {
+        return status;
     }
 }

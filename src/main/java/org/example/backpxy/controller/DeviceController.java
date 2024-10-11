@@ -21,21 +21,25 @@ public class DeviceController {
 
     @PostMapping
     public ResponseEntity<?> addDevice(@RequestBody Device device) {
-        logger.info("Received request to add device: {}", device);
+        logger.info("收到添加设备请求: {}", device);
         try {
             if (device.getName() == null || device.getName().trim().isEmpty()) {
-                logger.warn("Device name is empty");
+                logger.warn("设备名称为空");
                 return ResponseEntity.badRequest().body("设备名称不能为空");
             }
             if (device.getType() == null || device.getType().trim().isEmpty()) {
-                logger.warn("Device type is empty");
+                logger.warn("设备类型为空");
                 return ResponseEntity.badRequest().body("设备类型不能为空");
             }
+            if (device.getStatus() == null || device.getStatus().trim().isEmpty()) {
+                logger.warn("设备状态为空");
+                return ResponseEntity.badRequest().body("设备状态不能为空");
+            }
             Device savedDevice = deviceService.addDevice(device);
-            logger.info("Device added successfully: {}", savedDevice);
+            logger.info("设备添加成功: {}", savedDevice);
             return ResponseEntity.ok(savedDevice);
         } catch (Exception e) {
-            logger.error("Error adding device", e);
+            logger.error("添加设备时发生错误", e);
             return ResponseEntity.badRequest().body("添加设备失败：" + e.getMessage());
         }
     }
