@@ -16,6 +16,9 @@ public class AlarmThresholdServiceImpl implements AlarmThresholdService {
 
     @Override
     public AlarmThreshold createThreshold(AlarmThreshold threshold) {
+        if (threshold.getDevice() == null) {
+            throw new IllegalArgumentException("设备不能为空");
+        }
         return alarmThresholdRepository.save(threshold);
     }
 
@@ -32,5 +35,10 @@ public class AlarmThresholdServiceImpl implements AlarmThresholdService {
     @Override
     public List<AlarmThreshold> getThresholdsByDeviceId(Long deviceId) {
         return alarmThresholdRepository.findByDeviceId(deviceId);
+    }
+
+    @Override
+    public AlarmThreshold findById(Long id) {
+        return alarmThresholdRepository.findById(id).orElse(null);
     }
 }

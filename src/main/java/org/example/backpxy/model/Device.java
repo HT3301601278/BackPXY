@@ -53,4 +53,8 @@ public class Device {
     public void setType(String type) {
         this.type = type;
     }
+
+    public Long getId() {
+        return id;
+    }
 }

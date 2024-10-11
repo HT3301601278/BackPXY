@@ -9,4 +9,5 @@ public interface AlarmThresholdService {
     AlarmThreshold updateThreshold(AlarmThreshold threshold);
     void deleteThreshold(Long id);
     List<AlarmThreshold> getThresholdsByDeviceId(Long deviceId);
+    AlarmThreshold findById(Long id);
 }
