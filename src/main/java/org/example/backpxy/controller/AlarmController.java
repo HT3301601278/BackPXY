@@ -81,4 +81,30 @@ public class AlarmController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("获取报警频率统计失败：" + e.getMessage());
         }
     }
+
+    @GetMapping("/device/{deviceId}/all")
+    public ResponseEntity<?> getAllAlarmsByDevice(@PathVariable Long deviceId) {
+        try {
+            logger.info("获取设备 {} 的所有报警", deviceId);
+            List<AlarmRecord> alarms = alarmService.getAllAlarmsByDevice(deviceId);
+            logger.info("成功获取设备 {} 的所有报警，数量: {}", deviceId, alarms.size());
+            return ResponseEntity.ok(alarms);
+        } catch (Exception e) {
+            logger.error("获取设备 {} 的所有报警时发生错误", deviceId, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("获取报警失败：" + e.getMessage());
+        }
+    }
+
+    @GetMapping("/device/{deviceId}/active")
+    public ResponseEntity<?> getActiveAlarmsByDevice(@PathVariable Long deviceId) {
+        try {
+            logger.info("获取设备 {} 的活跃报警", deviceId);
+            List<AlarmRecord> activeAlarms = alarmService.getActiveAlarmsByDevice(deviceId);
+            logger.info("成功获取设备 {} 的活跃报警，数量: {}", deviceId, activeAlarms.size());
+            return ResponseEntity.ok(activeAlarms);
+        } catch (Exception e) {
+            logger.error("获取设备 {} 的活跃报警时发生错误", deviceId, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("获取活跃报警失败：" + e.getMessage());
+        }
+    }
 }

@@ -1,813 +1,244 @@
-# 水质监测系统API文档
+# 水质监测系统后端
 
-## 基础URL
+## 项目简介
 
-所有API都以以下基础URL开头:
+这是一个基于Spring Boot的水质监测系统后端项目。该系统旨在实时监控水质数据,管理监测设备,并在异常情况下发出警报。本项目适合想要学习Spring Boot、JPA、RESTful API设计以及如何构建一个完整的后端系统的开发者。
+
+## 技术栈
+
+- Java 8+
+- Spring Boot 2.x
+- Spring Data JPA
+- MySQL
+- Maven
+
+## 项目结构
 
 ```
-http://localhost:8080/api
+src/main/java/org/example/backpxy/
+├── BackPxyApplication.java
+├── config/
+│   ├── CorsConfig.java
+│   └── SecurityConfig.java
+├── controller/
+│   ├── AlarmController.java
+│   ├── AlarmThresholdController.java
+│   ├── DeviceController.java
+│   ├── MonitoringDataController.java
+│   └── UserController.java
+├── dto/
+│   └── MonitoringDataDTO.java
+├── model/
+│   ├── AlarmRecord.java
+│   ├── AlarmThreshold.java
+│   ├── Device.java
+│   ├── MonitoringData.java
+│   └── User.java
+├── repository/
+│   ├── AlarmRecordRepository.java
+│   ├── AlarmThresholdRepository.java
+│   ├── DeviceRepository.java
+│   ├── MonitoringDataRepository.java
+│   └── UserRepository.java
+└── service/
+    ├── AlarmService.java
+    ├── AlarmThresholdService.java
+    ├── DeviceService.java
+    ├── MonitoringDataService.java
+    ├── UserService.java
+    └── impl/
+        ├── AlarmServiceImpl.java
+        ├── AlarmThresholdServiceImpl.java
+        ├── DeviceServiceImpl.java
+        ├── MonitoringDataServiceImpl.java
+        └── UserServiceImpl.java
 ```
 
-## API列表
-
-### 1. 用户管理
-
-#### 1.1 注册用户
-
-- **URL**: `/users/register`
-- **方法**: POST
-- **描述**: 注册新用户
-- **请求体**:
-  ```json
-  {
-    "username": "string",
-    "password": "string",
-    "email": "string",
-  }
-  ```
-- **成功响应**: 
-  - 状态码: 200 OK
-  - 响应体: 注册成功的用户信息
-- **错误响应**:
-  - 状态码: 400 Bad Request
-  - 响应体: 错误信息字符串
-
-**测试用例**:
-
-1. 正常注册:
-   ```
-   POST /api/users/register
-   Content-Type: application/json
-
-   {
-     "username": "testuser",
-     "password": "password123",
-     "email": "testuser@example.com",
-   }
-   ```
-
-2. 重复用户名:
-   ```
-   POST /api/users/register
-   Content-Type: application/json
-
-   {
-     "username": "testuser",
-     "password": "password456",
-     "email": "testuser2@example.com",
-   }
-   ```
-
-3. 重复邮箱:
-   ```
-   POST /api/users/register
-   Content-Type: application/json
-
-   {
-     "username": "testuser2",
-     "password": "password789",
-     "email": "testuser@example.com",
-   }
-   ```
-
-#### 1.2 用户登录
-
-- **URL**: `/users/login`
-- **方法**: POST
-- **描述**: 用户登录
-- **请求体**:
-  ```json
-  {
-    "username": "string",
-    "password": "string"
-  }
-  ```
-- **成功响应**: 
-  - 状态码: 200 OK
-  - 响应体: 登录成功的用户信息
-- **错误响应**:
-  - 状态码: 401 Unauthorized
-  - 响应体: 错误信息字符串
-
-**测试用例**:
-
-1. 正常登录:
-   ```
-   POST /api/users/login
-   Content-Type: application/json
-
-   {
-     "username": "testuser",
-     "password": "password123"
-   }
-   ```
-
-2. 错误密码:
-   ```
-   POST /api/users/login
-   Content-Type: application/json
-
-   {
-     "username": "testuser",
-     "password": "wrongpassword"
-   }
-   ```
-
-3. 不存在的用户:
-   ```
-   POST /api/users/login
-   Content-Type: application/json
-
-   {
-     "username": "nonexistentuser",
-     "password": "password123"
-   }
-   ```
-
-### 2. 设备管理
-
-#### 2.1 添加设备
-
-- **URL**: `/devices`
-- **方法**: POST
-- **描述**: 添加新设备
-- **请求体**:
-  ```json
-  {
-    "name": "string",
-    "type": "string",
-    "status": "string",
-    "samplingFrequency": "number"
-  }
-  ```
-- **成功响应**: 
-  - 状态码: 200 OK
-  - 响应体: 添加成功的设备信息
-- **错误响应**:
-  - 状态码: 400 Bad Request
-  - 响应体: 错误信息字符串
-
-**测试用例**:
-
-1. 正常添加设备:
-   ```
-   POST /api/devices
-   Content-Type: application/json
-
-   {
-     "name": "Device 1",
-     "type": "WaterQualitySensor",
-     "status": "Active",
-     "samplingFrequency": 5.0
-   }
-   ```
-
-2. 名称为空:
-   ```
-   POST /api/devices
-   Content-Type: application/json
-
-   {
-     "name": "",
-     "type": "WaterQualitySensor",
-     "status": "Active",
-     "samplingFrequency": 5.0
-   }
-   ```
-
-3. 类型为空:
-   ```
-   POST /api/devices
-   Content-Type: application/json
-
-   {
-     "name": "Device 2",
-     "type": "",
-     "status": "Active",
-     "samplingFrequency": 5.0
-   }
-   ```
-
-#### 2.2 更新设备
-
-- **URL**: `/devices/{id}`
-- **方法**: PUT
-- **描述**: 更新指定ID的设备信息
-- **请求体**:
-  ```json
-  {
-    "name": "string",
-    "type": "string",
-    "status": "string",
-    "samplingFrequency": "number"
-  }
-  ```
-- **成功响应**: 
-  - 状态码: 200 OK
-  - 响应体: 更新后的设备信息
-- **错误响应**:
-  - 状态码: 404 Not Found
-  - 响应体: 错误信息字符串
-
-**测试用例**:
-
-1. 正常更新设备:
-   ```
-   PUT /api/devices/1
-   Content-Type: application/json
-
-   {
-     "name": "Updated Device 1",
-     "type": "WaterQualitySensor",
-     "status": "Inactive",
-     "samplingFrequency": 10.0
-   }
-   ```
-
-2. 更新不存在的设备:
-   ```
-   PUT /api/devices/999
-   Content-Type: application/json
-
-   {
-     "name": "Non-existent Device",
-     "type": "WaterQualitySensor",
-     "status": "Active",
-     "samplingFrequency": 5.0
-   }
-   ```
-
-#### 2.3 删除设备
-
-- **URL**: `/devices/{id}`
-- **方法**: DELETE
-- **描述**: 删除指定ID的设备
-- **成功响应**: 
-  - 状态码: 200 OK
-  - 响应体: 无
-- **错误响应**:
-  - 状态码: 404 Not Found
-  - 响应体: 错误信息字符串
-
-**测试用例**:
-
-1. 正常删除设备:
-   ```
-   DELETE /api/devices/1
-   ```
-
-2. 删除不存在的设备:
-   ```
-   DELETE /api/devices/999
-   ```
-
-#### 2.4 获取单个设备
-
-- **URL**: `/devices/{id}`
-- **方法**: GET
-- **描述**: 获取指定ID的设备信息
-- **成功响应**: 
-  - 状态码: 200 OK
-  - 响应体: 设备信息
-- **错误响应**:
-  - 状态码: 404 Not Found
-  - 响应体: 无
-
-**测试用例**:
-
-1. 获取存在的设备:
-   ```
-   GET /api/devices/1
-   ```
-
-2. 获取不存在的设备:
-   ```
-   GET /api/devices/999
-   ```
-
-#### 2.5 获取所有设备
-
-- **URL**: `/devices`
-- **方法**: GET
-- **描述**: 获取所有设备的列表
-- **成功响应**: 
-  - 状态码: 200 OK
-  - 响应体: 设备列表
-
-**测试用例**:
-
-1. 获取所有设备:
-   ```
-   GET /api/devices
-   ```
-
-#### 2.6 根据状态获取设备
-
-- **URL**: `/devices/status/{status}`
-- **方法**: GET
-- **描述**: 获取指定状态的设备列表
-- **成功响应**: 
-  - 状态码: 200 OK
-  - 响应体: 设备列表
-
-**测试用例**:
-
-1. 获取活跃状态的设备:
-   ```
-   GET /api/devices/status/Active
-   ```
-
-2. 获取非活跃状态的设备:
-   ```
-   GET /api/devices/status/Inactive
-   ```
-
-#### 2.7 更新设备状态
-
-- **URL**: `/devices/{id}/status`
-- **方法**: PUT
-- **描述**: 更新指定ID设备的状态
-- **请求参数**:
-  - `status`: 新的设备状态
-- **成功响应**: 
-  - 状态码: 200 OK
-  - 响应体: 更新后的设备信息
-- **错误响应**:
-  - 状态码: 404 Not Found
-  - 响应体: 错误信息字符串
-
-**测试用例**:
-
-1. 更新存在设备的状态:
-   ```
-   PUT /api/devices/1/status?status=Inactive
-   ```
-
-2. 更新不存在设备的状态:
-   ```
-   PUT /api/devices/999/status?status=Active
-   ```
-
-### 3. 监测数据管理
-
-#### 3.1 保存监测数据
-
-- **URL**: `/monitoring-data`
-- **方法**: POST
-- **描述**: 保存新的监测数据
-- **请求体**:
-  ```json
-  {
-    "deviceId": "number",
-    "temperature": "number",
-    "waterLevel": "number",
-    "timestamp": "string (ISO 8601 format)"
-  }
-  ```
-- **成功响应**: 
-  - 状态码: 200 OK
-  - 响应体: 保存成功的监测数据信息
-- **错误响应**:
-  - 状态码: 400 Bad Request
-  - 响应体: 错误信息字符串
-
-**测试用例**:
-
-1. 正常保存监测数据:
-   ```
-   POST /api/monitoring-data
-   Content-Type: application/json
-
-   {
-     "deviceId": 1,
-     "temperature": 25.5,
-     "waterLevel": 10.2,
-     "timestamp": "2023-05-20T10:30:00Z"
-   }
-   ```
-
-2. 保存数据到不存在的设备:
-   ```
-   POST /api/monitoring-data
-   Content-Type: application/json
-
-   {
-     "deviceId": 999,
-     "temperature": 26.0,
-     "waterLevel": 11.0,
-     "timestamp": "2023-05-20T10:35:00Z"
-   }
-   ```
-
-#### 3.2 获取设备的监测数据
-
-- **URL**: `/monitoring-data/device/{deviceId}`
-- **方法**: GET
-- **描述**: 获取指定设备在给定时间范围内的监测数据
-- **请求参数**:
-  - `startTime`: 开始时间 (ISO 8601 格式)
-  - `endTime`: 结束时间 (ISO 8601 格式)
-- **成功响应**: 
-  - 状态码: 200 OK
-  - 响应体: 监测数据列表
-- **错误响应**:
-  - 状态码: 400 Bad Request
-  - 响应体: 错误信息字符串
-
-**测试用例**:
-
-1. 获取有效时间范围内的数据:
-   ```
-   GET /api/monitoring-data/device/1?startTime=2023-05-20T00:00:00Z&endTime=2023-05-21T00:00:00Z
-   ```
-
-2. 获取无效时间范围的数据:
-   ```
-   GET /api/monitoring-data/device/1?startTime=2023-05-21T00:00:00Z&endTime=2023-05-20T00:00:00Z
-   ```
-
-3. 获取不存在设备的数据:
-   ```
-   GET /api/monitoring-data/device/999?startTime=2023-05-20T00:00:00Z&endTime=2023-05-21T00:00:00Z
-   ```
-
-#### 3.3 获取设备的最新监测数据
-
-- **URL**: `/monitoring-data/device/{deviceId}/latest`
-- **方法**: GET
-- **描述**: 获取指定设备的最新监测数据
-- **成功响应**: 
-  - 状态码: 200 OK
-  - 响应体: 最新的监测数据
-- **错误响应**:
-  - 状态码: 404 Not Found
-  - 响应体: 无
-
-**测试用例**:
-
-1. 获取存在设备的最新数据:
-   ```
-   GET /api/monitoring-data/device/1/latest
-   ```
-
-2. 获取不存在设备的最新数据:
-   ```
-   GET /api/monitoring-data/device/999/latest
-   ```
-
-### 4. 报警阈值管理
-
-#### 4.1 创建报警阈值
-
-- **URL**: `/alarm-thresholds`
-- **方法**: POST
-- **描述**: 为指定设备创建新的报警阈值
-- **请求体**:
-  ```json
-  {
-    "deviceId": "number",
-    "metricName": "string",
-    "minThreshold": "number",
-    "maxThreshold": "number"
-  }
-  ```
-- **成功响应**: 
-  - 状态码: 200 OK
-  - 响应体: 创建成功的报警阈值信息
-- **错误响应**:
-  - 状态码: 400 Bad Request
-  - 响应体: 错误信息字符串
-
-**测试用例**:
-
-1. 正常创建报警阈值:
-   ```
-   POST /api/alarm-thresholds
-   Content-Type: application/json
-
-   {
-     "deviceId": 1,
-     "metricName": "temperature",
-     "minThreshold": 10.0,
-     "maxThreshold": 30.0
-   }
-   ```
-
-2. 为不存在的设备创建报警阈值:
-   ```
-   POST /api/alarm-thresholds
-   Content-Type: application/json
-
-   {
-     "deviceId": 999,
-     "metricName": "waterLevel",
-     "minThreshold": 5.0,
-     "maxThreshold": 15.0
-   }
-   ```
-
-#### 4.2 更新报警阈值
-
-- **URL**: `/alarm-thresholds/{id}`
-- **方法**: PUT
-- **描述**: 更新指定ID的报警阈值
-- **请求体**:
-  ```json
-  {
-    "metricName": "string",
-    "minThreshold": "number",
-    "maxThreshold": "number"
-  }
-  ```
-- **成功响应**: 
-  - 状态码: 200 OK
-  - 响应体: 更新后的报警阈值信息
-- **错误响应**:
-  - 状态码: 404 Not Found
-  - 响应体: 错误信息字符串
-
-**测试用例**:
-
-1. 更新存在的报警阈值:
-   ```
-   PUT /api/alarm-thresholds/1
-   Content-Type: application/json
-
-   {
-     "metricName": "temperature",
-     "minThreshold": 15.0,
-     "maxThreshold": 35.0
-   }
-   ```
-
-2. 更新不存在的报警阈值:
-   ```
-   PUT /api/alarm-thresholds/999
-   Content-Type: application/json
-
-   {
-     "metricName": "waterLevel",
-     "minThreshold": 2.0,
-     "maxThreshold": 8.0
-   }
-   ```
-
-#### 4.3 删除报警阈值
-
-- **URL**: `/alarm-thresholds/{id}`
-- **方法**: DELETE
-- **描述**: 删除指定ID的报警阈值
-- **成功响应**: 
-  - 状态码: 200 OK
-  - 响应体: 成功消息
-- **错误响应**:
-  - 状态码: 400 Bad Request
-  - 响应体: 错误信息字符串
-
-**测试用例**:
-
-1. 删除存在的报警阈值:
-   ```
-   DELETE /api/alarm-thresholds/1
-   ```
-
-2. 删除不存在的报警阈值:
-   ```
-   DELETE /api/alarm-thresholds/999
-   ```
-
-#### 4.4 获取设备的报警阈值
-
-- **URL**: `/alarm-thresholds/device/{deviceId}`
-- **方法**: GET
-- **描述**: 获取指定设备的所有报警阈值
-- **成功响应**: 
-  - 状态码: 200 OK
-  - 响应体: 报警阈值列表
-- **错误响应**:
-  - 状态码: 404 Not Found
-  - 响应体: 无
-
-**测试用例**:
-
-1. 获取存在设备的报警阈值:
-   ```
-   GET /api/alarm-thresholds/device/1
-   ```
-
-2. 获取不存在设备的报警阈值:
-   ```
-   GET /api/alarm-thresholds/device/999
-   ```
-
-### 5. 报警管理
-
-#### 5.1 获取设备报警
-
-- **URL**: `/alarms/device/{deviceId}`
-- **方法**: GET
-- **描述**: 获取指定设备的报警记录
-- **请求参数**:
-  - `status`: 报警状态（可选，默认为"ACTIVE"）
-- **成功响应**: 
-  - 状态码: 200 OK
-  - 响应体: 报警记录列表
-- **错误响应**:
-  - 状态码: 400 Bad Request
-  - 响应体: 错误信息字符串
-
-**测试用例**:
-
-1. 获取设备的活跃报警:
-   ```
-   GET /api/alarms/device/1?status=ACTIVE
-   ```
-
-2. 获取设备的所有报警:
-   ```
-   GET /api/alarms/device/1
-   ```
-
-#### 5.2 更新报警状态
-
-- **URL**: `/alarms/{alarmId}/status`
-- **方法**: PUT
-- **描述**: 更新指定报警的状态
-- **请求参数**:
-  - `newStatus`: 新的报警状态
-- **成功响应**: 
-  - 状态码: 200 OK
-  - 响应体: 更新后的报警记录
-- **错误响应**:
-  - 状态码: 404 Not Found
-  - 响应体: 无
-
-**测试用例**:
-
-1. 更新存在的报警状态:
-   ```
-   PUT /api/alarms/1/status?newStatus=RESOLVED
-   ```
-
-2. 更新不存在的报警状态:
-   ```
-   PUT /api/alarms/999/status?newStatus=RESOLVED
-   ```
-
-#### 5.3 获取报警统计
-
-- **URL**: `/alarms/statistics/count`
-- **方法**: GET
-- **描述**: 获取指定设备在给定时间范围内的报警数量
-- **请求参数**:
-  - `deviceId`: 设备ID
-  - `startTime`: 开始时间 (ISO 8601 格式)
-  - `endTime`: 结束时间 (ISO 8601 格式)
-- **成功响应**: 
-  - 状态码: 200 OK
-  - 响应体: 报警数量
-- **错误响应**:
-  - 状态码: 400 Bad Request
-  - 响应体: 错误信息字符串
-
-**测试用例**:
-
-1. 获取有效时间范围内的报警统计:
-   ```
-   GET /api/alarms/statistics/count?deviceId=1&startTime=2023-05-20T00:00:00Z&endTime=2023-05-21T00:00:00Z
-   ```
-
-2. 获取无效时间范围的报警统计:
-   ```
-   GET /api/alarms/statistics/count?deviceId=1&startTime=2023-05-21T00:00:00Z&endTime=2023-05-20T00:00:00Z
-   ```
-
-#### 5.4 获取报警频率
-
-- **URL**: `/alarms/statistics/frequency`
-- **方法**: GET
-- **描述**: 获取指定设备在给定时间范围内的报警频率（按类型分类）
-- **请求参数**:
-  - `deviceId`: 设备ID
-  - `startTime`: 开始时间 (ISO 8601 格式)
-  - `endTime`: 结束时间 (ISO 8601 格式)
-- **成功响应**: 
-  - 状态码: 200 OK
-  - 响应体: 报警频率统计（按类型分类）
-- **错误响应**:
-  - 状态码: 400 Bad Request
-  - 响应体: 错误信息字符串
-
-**测试用例**:
-
-1. 获取有效时间范围内的报警频率:
-   ```
-   GET /api/alarms/statistics/frequency?deviceId=1&startTime=2023-05-20T00:00:00Z&endTime=2023-05-21T00:00:00Z
-   ```
-
-2. 获取无效时间范围的报警频率:
-   ```
-   GET /api/alarms/statistics/frequency?deviceId=1&startTime=2023-05-21T00:00:00Z&endTime=2023-05-20T00:00:00Z
-   ```
-
-### 6. 监测数据管理
-
-#### 6.1 保存监测数据
-
-- **URL**: `/monitoring-data`
-- **方法**: POST
-- **描述**: 保存新的监测数据
-- **请求体**:
-  ```json
-  {
-    "deviceId": "number",
-    "temperature": "number",
-    "waterLevel": "number",
-    "timestamp": "string (ISO 8601 format)"
-  }
-  ```
-- **成功响应**: 
-  - 状态码: 200 OK
-  - 响应体: 保存成功的监测数据信息
-- **错误响应**:
-  - 状态码: 400 Bad Request
-  - 响应体: 错误信息字符串
-
-**测试用例**:
-
-1. 正常保存监测数据:
-   ```
-   POST /api/monitoring-data
-   Content-Type: application/json
-
-   {
-     "deviceId": 1,
-     "temperature": 25.5,
-     "waterLevel": 10.2,
-     "timestamp": "2023-05-20T10:30:00Z"
-   }
-   ```
-
-2. 保存数据到不存在的设备:
-   ```
-   POST /api/monitoring-data
-   Content-Type: application/json
-
-   {
-     "deviceId": 999,
-     "temperature": 26.0,
-     "waterLevel": 11.0,
-     "timestamp": "2023-05-20T10:35:00Z"
-   }
-   ```
-
-#### 6.2 获取设备的监测数据
-
-- **URL**: `/monitoring-data/device/{deviceId}`
-- **方法**: GET
-- **描述**: 获取指定设备在给定时间范围内的监测数据
-- **请求参数**:
-  - `startTime`: 开始时间 (ISO 8601 格式)
-  - `endTime`: 结束时间 (ISO 8601 格式)
-- **成功响应**: 
-  - 状态码: 200 OK
-  - 响应体: 监测数据列表
-- **错误响应**:
-  - 状态码: 400 Bad Request
-  - 响应体: 错误信息字符串
-
-**测试用例**:
-
-1. 获取有效时间范围内的数据:
-   ```
-   GET /api/monitoring-data/device/1?startTime=2023-05-20T00:00:00Z&endTime=2023-05-21T00:00:00Z
-   ```
-
-2. 获取无效时间范围的数据:
-   ```
-   GET /api/monitoring-data/device/1?startTime=2023-05-21T00:00:00Z&endTime=2023-05-20T00:00:00Z
-   ```
-
-#### 6.3 获取设备的最新监测数据
-
-- **URL**: `/monitoring-data/device/{deviceId}/latest`
-- **方法**: GET
-- **描述**: 获取指定设备的最新监测数据
-- **成功响应**: 
-  - 状态码: 200 OK
-  - 响应体: 最新的监测数据
-- **错误响应**:
-  - 状态码: 404 Not Found
-  - 响应体: 无
-
-**测试用例**:
-
-1. 获取存在设备的最新数据:
-   ```
-   GET /api/monitoring-data/device/1/latest
-   ```
-
-2. 获取不存在设备的最新数据:
-   ```
-   GET /api/monitoring-data/device/999/latest
-   ```
+## 核心功能模块
+
+1. 用户管理
+   - 用户注册
+   - 用户登录
+   - 用户信息更新
+
+2. 设备管理
+   - 添加设备
+   - 更新设备信息
+   - 删除设备
+   - 查询设备列表
+
+3. 监测数据管理
+   - 保存监测数据
+   - 查询指定时间范围内的监测数据
+   - 获取最新监测数据
+
+4. 报警管理
+   - 设置报警阈值
+   - 检查并创建报警记录
+   - 查询报警记录
+   - 更新报警状态
+
+5. 报警阈值管理
+   - 创建报警阈值
+   - 更新报警阈值
+   - 删除报警阈值
+   - 查询设备的报警阈值
+
+## 详细模块说明
+
+### 1. 用户管理 (User Management)
+
+用户管理模块负责处理用户相关的操作,包括注册、登录和信息更新。
+
+主要类:
+- `User.java`: 用户实体类
+- `UserRepository.java`: 用户数据访问接口
+- `UserService.java`: 用户服务接口
+- `UserServiceImpl.java`: 用户服务实现类
+- `UserController.java`: 用户控制器
+
+关键功能:
+- 用户注册: `UserServiceImpl.java` 中的 `registerUser` 方法
+- 用户登录: `UserServiceImpl.java` 中的 `login` 方法
+
+### 2. 设备管理 (Device Management)
+
+设备管理模块处理与监测设备相关的操作,如添加、更新、删除和查询设备。
+
+主要类:
+- `Device.java`: 设备实体类
+- `DeviceRepository.java`: 设备数据访问接口
+- `DeviceService.java`: 设备服务接口
+- `DeviceServiceImpl.java`: 设备服务实现类
+- `DeviceController.java`: 设备控制器
+
+关键功能:
+- 添加设备: `DeviceServiceImpl.java` 中的 `addDevice` 方法
+- 更新设备状态: `DeviceServiceImpl.java` 中的 `updateDeviceStatus` 方法
+
+### 3. 监测数据管理 (Monitoring Data Management)
+
+监测数据管理模块负责处理水质监测数据的保存和查询。
+
+主要类:
+- `MonitoringData.java`: 监测数据实体类
+- `MonitoringDataDTO.java`: 监测数据传输对象
+- `MonitoringDataRepository.java`: 监测数据数据访问接口
+- `MonitoringDataService.java`: 监测数据服务接口
+- `MonitoringDataServiceImpl.java`: 监测数据服务实现类
+- `MonitoringDataController.java`: 监测数据控制器
+
+关键功能:
+- 保存监测数据: `MonitoringDataServiceImpl.java` 中的 `saveData` 方法
+- 查询最新监测数据: `MonitoringDataServiceImpl.java` 中的 `findLatestByDeviceId` 方法
+
+### 4. 报警管理 (Alarm Management)
+
+报警管理模块负责处理报警相关的操作,包括创建报警记录、查询报警和更新报警状态。
+
+主要类:
+- `AlarmRecord.java`: 报警记录实体类
+- `AlarmRecordRepository.java`: 报警记录数据访问接口
+- `AlarmService.java`: 报警服务接口
+- `AlarmServiceImpl.java`: 报警服务实现类
+- `AlarmController.java`: 报警控制器
+
+关键功能:
+- 检查并创建报警: `AlarmServiceImpl.java` 中的 `checkAndCreateAlarm` 方法
+- 获取报警统计信息: `AlarmServiceImpl.java` 中的 `getAlarmCountByDeviceAndTimeRange` 和 `getAlarmFrequencyByType` 方法
+
+### 5. 报警阈值管理 (Alarm Threshold Management)
+
+报警阈值管理模块处理报警阈值的设置和管理。
+
+主要类:
+- `AlarmThreshold.java`: 报警阈值实体类
+- `AlarmThresholdRepository.java`: 报警阈值数据访问接口
+- `AlarmThresholdService.java`: 报警阈值服务接口
+- `AlarmThresholdServiceImpl.java`: 报警阈值服务实现类
+- `AlarmThresholdController.java`: 报警阈值控制器
+
+关键功能:
+- 创建报警阈值: `AlarmThresholdServiceImpl.java` 中的 `createThreshold` 方法
+- 获取设备的报警阈值: `AlarmThresholdServiceImpl.java` 中的 `getThresholdsByDeviceId` 方法
+
+## 配置说明
+
+1. 数据库配置
+
+数据库配置位于 `src/main/resources/application.properties` 文件中:
+
+```properties
+spring.datasource.url=jdbc:mysql://localhost:3305/water_monitoring?useSSL=false&serverTimezone=UTC
+spring.datasource.username=root
+spring.datasource.password=123456
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+```
+
+2. JPA配置
+
+JPA相关配置也在 `application.properties` 文件中:
+
+```properties
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL57Dialect
+spring.jpa.open-in-view=true
+```
+
+3. 安全配置
+
+安全配置位于 `SecurityConfig.java` 文件中,目前配置为允许所有请求,禁用了CSRF保护和基本认证。
+
+4. CORS配置
+
+跨域资源共享(CORS)配置位于 `CorsConfig.java` 文件中,允许来自 `http://localhost:8081` 的请求。
+
+## 如何运行项目
+
+1. 确保您的系统中已安装Java 8+和Maven。
+2. 克隆项目到本地。
+3. 在项目根目录下运行 `mvn clean install` 命令来构建项目。
+4. 运行 `mvn spring-boot:run` 命令来启动项目。
+5. 项目将在 `http://localhost:8080` 上运行。
+
+## API文档
+
+项目中的主要API包括:
+
+1. 用户API: `/api/users`
+   - POST `/api/users/register`: 注册新用户
+   - POST `/api/users/login`: 用户登录
+
+2. 设备API: `/api/devices`
+   - POST `/api/devices`: 添加新设备
+   - GET `/api/devices`: 获取所有设备
+   - GET `/api/devices/{id}`: 获取指定ID的设备
+   - PUT `/api/devices/{id}`: 更新指定ID的设备
+   - DELETE `/api/devices/{id}`: 删除指定ID的设备
+
+3. 监测数据API: `/api/monitoring-data`
+   - POST `/api/monitoring-data`: 保存监测数据
+   - GET `/api/monitoring-data/device/{deviceId}`: 获取指定设备的监测数据
+   - GET `/api/monitoring-data/device/{deviceId}/latest`: 获取指定设备的最新监测数据
+
+4. 报警API: `/api/alarms`
+   - GET `/api/alarms/device/{deviceId}`: 获取指定设备的报警记录
+   - PUT `/api/alarms/{alarmId}/status`: 更新报警状态
+   - GET `/api/alarms/statistics/count`: 获取报警统计数量
+   - GET `/api/alarms/statistics/frequency`: 获取报警频率统计
+
+5. 报警阈值API: `/api/alarm-thresholds`
+   - POST `/api/alarm-thresholds`: 创建新的报警阈值
+   - PUT `/api/alarm-thresholds/{id}`: 更新指定ID的报警阈值
+   - DELETE `/api/alarm-thresholds/{id}`: 删除指定ID的报警阈值
+   - GET `/api/alarm-thresholds/device/{deviceId}`: 获取指定设备的报警阈值
+
+## 学习建议
+
+1. 首先熟悉项目的整体结构,了解各个包的作用。
+2. 仔细阅读 `model` 包中的实体类,理解系统中的核心数据模型。
+3. 研究 `repository` 包中的接口,了解如何使用Spring Data JPA进行数据访问。
+4. 查看 `service` 包中的接口和实现类,理解业务逻辑的处理方式。
+5. 最后研究 `controller` 包中的类,了解如何设计RESTful API。
+6. 尝试运行项目,使用API测试工具(如Postman)测试各个接口。

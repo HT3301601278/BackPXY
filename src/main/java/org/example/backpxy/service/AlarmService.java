@@ -13,4 +13,6 @@ public interface AlarmService {
     AlarmRecord updateAlarmStatus(Long alarmId, String newStatus);
     long getAlarmCountByDeviceAndTimeRange(Long deviceId, Date startTime, Date endTime);
     Map<String, Long> getAlarmFrequencyByType(Long deviceId, Date startTime, Date endTime);
+    List<AlarmRecord> getAllAlarmsByDevice(Long deviceId);
+    List<AlarmRecord> getActiveAlarmsByDevice(Long deviceId);
 }

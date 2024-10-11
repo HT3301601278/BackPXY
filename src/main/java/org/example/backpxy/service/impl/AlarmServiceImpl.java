@@ -112,4 +112,20 @@ public class AlarmServiceImpl implements AlarmService {
         logger.info("设备 {} 在指定时间范围内的报警频率为: {}", deviceId, frequency);
         return frequency;
     }
+
+    @Override
+    public List<AlarmRecord> getAllAlarmsByDevice(Long deviceId) {
+        logger.info("正在获取设备 {} 的所有报警", deviceId);
+        List<AlarmRecord> alarms = alarmRecordRepository.findByDeviceId(deviceId);
+        logger.info("设备 {} 的所有报警数量: {}", deviceId, alarms.size());
+        return alarms;
+    }
+
+    @Override
+    public List<AlarmRecord> getActiveAlarmsByDevice(Long deviceId) {
+        logger.info("正在获取设备 {} 的活跃报警", deviceId);
+        List<AlarmRecord> activeAlarms = alarmRecordRepository.findByDeviceIdAndStatus(deviceId, "ACTIVE");
+        logger.info("设备 {} 的活跃报警数量: {}", deviceId, activeAlarms.size());
+        return activeAlarms;
+    }
 }

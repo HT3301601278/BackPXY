@@ -10,4 +10,5 @@ public interface AlarmRecordRepository extends JpaRepository<AlarmRecord, Long> 
     List<AlarmRecord> findByDeviceIdAndStatus(Long deviceId, String status);
     long countByDeviceIdAndAlarmTimeBetween(Long deviceId, Date startTime, Date endTime);
     List<AlarmRecord> findByDeviceIdAndAlarmTimeBetween(Long deviceId, Date startTime, Date endTime);
+    List<AlarmRecord> findByDeviceId(Long deviceId);
 }
